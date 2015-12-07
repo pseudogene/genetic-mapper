@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# $Revision: 0.4 $
-# $Date: 2013/02/15 $
+# $Revision: 0.5 $
+# $Date: 2013/11/06 $
 # $Id: genetic_mapper.pl $
 # $Author: Michael Bekaert $
 #
@@ -29,7 +29,7 @@ Genetic-mapper - SVG Genetic Map Drawer
 
   # Command line help
   ..:: SVG Genetic Map Drawer ::..
-  > Standalone program version 0.4 <
+  > Standalone program version 0.5 <
 
   Usage: genetic_mapper.pl [-options] --map=<map.csv>
 
@@ -72,9 +72,9 @@ Perl script for creating a publication-ready genetic/linkage map in SVG format. 
 resulting file can either be submitted for publication and edited with any vectorial
 drawing software like Inkscape and Abobe Illustrator.
 
-The input file must be a CSV file with at least the marker name (ID), linkage group (Chr)
-and the position (Pos). Additionally a LOD score or p-value can be provided. Any extra
-parameter will be ignore.
+The input file must be a CSV file with at least the marker name (ID) [string], linkage
+group (Chr) [numeric], and the position (Pos) [numeric]. Additionally a LOD score or
+p-value can be provided. Any extra parameter will be ignore.
 
 	ID,Chr,Pos,LOD
 	13519,12,0,0.250840894
@@ -119,7 +119,7 @@ use warnings;
 use Getopt::Long;
 
 #----------------------------------------------------------
-our ($VERSION) = 0.4;
+our ($VERSION) = 0.5;
 
 #----------------------------------------------------------
 my ($verbose, $shify, $bar, $square, $var, $pflag, $scale, $compact, $plot, $font, $karyotype, $map, $chr) = (0, 30, 0, 0, 0, 0, 10, 0, 0);
@@ -144,18 +144,19 @@ if ($scale>0 && defined $map && -r $map && (open my $IN, '<', $map))
         my @data = split m/,/;
         if (scalar @data > 2 && defined $data[1] && (!defined $chr || $data[1] eq $chr))
         {
+        	my $chromosomeid = int($data[1] * 10) / 10;
 		    my $location = int($data[2] * 1000);
-            if (!exists $chromosomes{$data[1]}{$location}) { @{$chromosomes{$data[1]}{$location}} = ($data[0], 1, (exists($data[3]) ? $data[3] : -1)); }
+            if (!exists $chromosomes{$chromosomeid}{$location}) { @{$chromosomes{$chromosomeid}{$location}} = ($data[0], 1, (exists($data[3]) ? $data[3] : -1)); }
             else
             {
-                $chromosomes{$data[1]}{$location}[0] .= q{,} . $data[0];
-                $chromosomes{$data[1]}{$location}[1] += 1;
-                $chromosomes{$data[1]}{$location}[2] += (exists($data[3]) ? $data[3] : 0);
+                $chromosomes{$chromosomeid}{$location}[0] .= q{,} . $data[0];
+                $chromosomes{$chromosomeid}{$location}[1] += 1;
+                $chromosomes{$chromosomeid}{$location}[2] += (exists($data[3]) ? $data[3] : 0);
             }
-            if (!exists $max{$data[1]} || $max{$data[1]} < $location / 1000)
+            if (!exists $max{$chromosomeid} || $max{$chromosomeid} < $location / 1000)
             {
-                $max{$data[1]} = $location / 1000;
-                $maxmax = $max{$data[1]} if (!defined $maxmax || $maxmax < $max{$data[1]});
+                $max{$chromosomeid} = $location / 1000;
+                $maxmax = $max{$chromosomeid} if (!defined $maxmax || $maxmax < $max{$chromosomeid});
             }
             $maxlog = $data[3] if (!defined $maxlog || $maxlog < $data[3]);
         }
@@ -178,7 +179,7 @@ if ($scale>0 && defined $map && -r $map && (open my $IN, '<', $map))
     if (scalar keys %chromosomes > 0)
     {
         my $i = 0;
-        foreach my $chrnum (sort { $a eq $b } keys %chromosomes)
+        foreach my $chrnum (sort { $a <=> $b } keys %chromosomes)
         {
             $yshift += (($pflag ? 100 : 0) + 300) if ($i++ > 0);
             print {*STDERR} '***** Linkage Group ', $chrnum, " *****\n" if ($verbose);

@@ -1,6 +1,10 @@
 
 #Changes
 
+## v0.5 (November 2013)
+
+* Fix the numerical chromosome ordering
+
 ## v0.4 (February 2013)
 
 * Add scaling options (--scale)
