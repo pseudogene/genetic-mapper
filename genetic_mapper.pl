@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# $Revision: 0.2 $
-# $Date: 2012/10/08 $
+# $Revision: 0.3 $
+# $Date: 2012/10/09 $
 # $Id: genetic_mapper.pl $
 # $Author: Michael Bekaert $
 #
@@ -29,12 +29,12 @@ Genetic-mapper - SVG Genetic Map Drawer
 
   # Command line help
   ..:: SVG Genetic Map Drawer ::..
-  > Standalone program version 0.2 <
+  > Standalone program version 0.3 <
 
   Usage: genetic_mapper.pl [-options] --map=<map.csv>
 
    Options
-     --chr <string>
+     --chr
            Select only the specified chromosome/linkage group.
      --bar
            Use a coloured visualisation with a bark bar at the marker position.
@@ -113,7 +113,7 @@ use warnings;
 use Getopt::Long;
 
 #----------------------------------------------------------
-our ($VERSION) = 0.2;
+our ($VERSION) = 0.3;
 
 #----------------------------------------------------------
 my ($verbose, $shify, $bar, $square, $var, $pflag, $scale, $compact, $plot, $font, $map, $chr) = (0, 30, 0, 0, 0, 0, 10, 0, 0);
@@ -158,9 +158,9 @@ if (defined $map && -r $map && (open my $IN, '<', $map))
     if (scalar keys %chromosomes > 0)
     {
         my $i = 0;
-        foreach my $chrnum (sort keys %chromosomes)
+        foreach my $chrnum (sort { int($a) <=> int($b) } keys %chromosomes)
         {
-            $yshift += (($pflag ? 100 : 0) + 300) * $i++;
+            $yshift += (($pflag ? 100 : 0) + 300) if ($i++ > 0);
             print {*STDERR} '***** Linkage Group ', $chrnum, " *****\n" if ($verbose);
             my (@locussite, @legend);
             my $plast = -999;
