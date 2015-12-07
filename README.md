@@ -1,6 +1,6 @@
-Genetic-mapper v0.3 - SVG Genetic Map Drawer
+Genetic-mapper v0.4 - SVG Genetic Map Drawer
 
-November 2012
+February 2013
 
 
 #Genetic-mapper

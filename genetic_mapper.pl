@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Revision: 0.3 $
-# $Date: 2012/10/09 $
+# $Revision: 0.4 $
+# $Date: 2013/02/15 $
 # $Id: genetic_mapper.pl $
 # $Author: Michael Bekaert $
 #
 # SVG Genetic Map Drawer
-# Copyright 2012 Bekaert M <mbekaert@gmail.com>
+# Copyright 2012-2013 Bekaert M <mbekaert@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,27 +29,33 @@ Genetic-mapper - SVG Genetic Map Drawer
 
   # Command line help
   ..:: SVG Genetic Map Drawer ::..
-  > Standalone program version 0.3 <
+  > Standalone program version 0.4 <
 
   Usage: genetic_mapper.pl [-options] --map=<map.csv>
 
    Options
-     --chr
-           Select only the specified chromosome/linkage group.
+     --chr=<name>
+           Draw only the specified chromosome/linkage group.
      --bar
-           Use a coloured visualisation with a bark bar at the marker position.
+           Use a coloured visualisation with a dark bar at the marker position.
      --plot
-           Rather than a list marker names, plot a circle. If the LOD-score is
+           Rather than a list marker names, plots a circle. If the LOD-score is
            provided a dark disk fill the circle proportionality to its value.
      --var
-           If specify with --bar or --var the size of the bar/circle is proportional
-           to the number of markers.
+           If specified with --bar or --plot the size of the bar/circle is
+           proportional to the number of markers.
      --square
-           Small squares are used rather then name (incompatible with --plot).
+           Small squares are used rather than names (incompatible with --plot).
      --pos
-           The marker position in indicated on the left site of the chromosome.
+           The marker positions are indicated on the left site of the chromosome.
      --compact
            A more compact/stylish chromosome is used (incompatible with --bar).
+     --karyotype=<karyotype.file>
+           Specify a karytype to scale the physical chromosme. Rather than using
+           genetic distances, expect nucleotide position in than map file.
+           FORMAT: "chr - ID LABEL START END COMMENT"
+     --scale= ]0,+oo[
+           Change the scale of the figure (default x10).
      --verbose
            Become chatty.
 
@@ -84,7 +90,7 @@ comments and suggestions preferably to author.
 
 =head1 AUTHOR
 
-B<Michael Bekaert> (michael@batlab.eu)
+B<Michael Bekaert> (mbekaert@gmail.com)
 
 The latest version of genetic_mapper.pl is available at
 
@@ -92,7 +98,7 @@ The latest version of genetic_mapper.pl is available at
 
 =head1 LICENSE
 
-Copyright 2012 - Michael Bekaert
+Copyright 2012-2013 - Michael Bekaert
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -113,11 +119,11 @@ use warnings;
 use Getopt::Long;
 
 #----------------------------------------------------------
-our ($VERSION) = 0.3;
+our ($VERSION) = 0.4;
 
 #----------------------------------------------------------
-my ($verbose, $shify, $bar, $square, $var, $pflag, $scale, $compact, $plot, $font, $map, $chr) = (0, 30, 0, 0, 0, 0, 10, 0, 0);
-GetOptions('m|map=s' => \$map, 'b|bar!' => \$bar, 'square!' => \$square, 'var!' => \$var, 'p|pos|position!' => \$pflag, 'compact!' => \$compact, 'plot!' => \$plot, 'c|chr:s' => \$chr, 'v|verbose!' => \$verbose);
+my ($verbose, $shify, $bar, $square, $var, $pflag, $scale, $compact, $plot, $font, $karyotype, $map, $chr) = (0, 30, 0, 0, 0, 0, 10, 0, 0);
+GetOptions('m|map=s' => \$map, 'k|karyotype:s' => \$karyotype, 'scale:f' => \$scale, 'bar!' => \$bar, 'square!' => \$square, 'var!' => \$var, 'p|pos|position!' => \$pflag, 'compact!' => \$compact, 'plot!' => \$plot, 'c|chr:s' => \$chr, 'v|verbose!' => \$verbose);
 my $yshift = ($pflag ? 100 : 0);
 
 my @font   = ('Helvetica', 4, 13, 10);
@@ -126,7 +132,7 @@ my @font   = ('Helvetica', 4, 13, 10);
 #my @font=('Lucida Console',4,13,10);
 #my @font=('Myriad Pro',4,13,10);
 
-if (defined $map && -r $map && (open my $IN, '<', $map))
+if ($scale>0 && defined $map && -r $map && (open my $IN, '<', $map))
 {
     my (@clips,       @final);
     my (%chromosomes, %max);
@@ -138,7 +144,7 @@ if (defined $map && -r $map && (open my $IN, '<', $map))
         my @data = split m/,/;
         if (scalar @data > 2 && defined $data[1] && (!defined $chr || $data[1] eq $chr))
         {
-            my $location = int($data[2] * 1000);
+		    my $location = int($data[2] * 1000);
             if (!exists $chromosomes{$data[1]}{$location}) { @{$chromosomes{$data[1]}{$location}} = ($data[0], 1, (exists($data[3]) ? $data[3] : -1)); }
             else
             {
@@ -155,10 +161,24 @@ if (defined $map && -r $map && (open my $IN, '<', $map))
         }
     }
     close $IN;
+    if (defined $karyotype && -r $karyotype && (open my $KIN, '<', $karyotype))
+    {
+        while (<$KIN>)
+        {
+            chomp;
+            my @data = split m/ /;
+            if (scalar @data > 5 && defined $data[0] && $data[0] eq 'chr' && defined $data[2] && defined $data[5] && exists $max{$data[2]})
+            {
+                $max{$data[2]} = $data[5];
+                $maxmax = $max{$data[2]} if (!defined $maxmax || $maxmax < $max{$data[2]});
+            }
+        }
+        close $KIN;
+    }
     if (scalar keys %chromosomes > 0)
     {
         my $i = 0;
-        foreach my $chrnum (sort { int($a) <=> int($b) } keys %chromosomes)
+        foreach my $chrnum (sort { $a eq $b } keys %chromosomes)
         {
             $yshift += (($pflag ? 100 : 0) + 300) if ($i++ > 0);
             print {*STDERR} '***** Linkage Group ', $chrnum, " *****\n" if ($verbose);
@@ -277,5 +297,5 @@ if (defined $map && -r $map && (open my $IN, '<', $map))
         print {*STDOUT} "</svg>\n";
     }
 } else {
-    print {*STDERR} "\n  ..:: SVG Genetic Map Drawer ::..\n  > Standalone program version $VERSION <\n\n  Usage: $0 [-options] --map=<map.csv>\n\n   Options\n     --chr <string>\n           Select only the specified chromosome/linkage group.\n     --bar\n           Use a coloured visualisation with a bark bar at the marker position.\n     --plot\n           Rather than a list marker names, plot a circle. If the LOD-score is\n           provided a dark disk fill the circle proportionality to its value.\n     --var\n           If specify with --bar or --var the size of the bar/circle is proportional\n           to the number of markers.\n     --square\n           Small squares are used rather then name (incompatible with --plot).\n     --pos\n           The marker position in indicated on the left site of the chromosome.\n     --compact\n           A more compact/stylish chromosome is used (incompatible with --bar).\n     --verbose\n           Become chatty.\n\n";
+    print {*STDERR} "\n  ..:: SVG Genetic Map Drawer ::..\n  > Standalone program version $VERSION <\n\n  Usage: $0 [-options] --map=<map.csv>\n\n   Options\n     --chr <string>\n           Draw only the specified chromosome/linkage group.\n     --bar\n           Use a coloured visualisation with a bark bar at the marker position.\n     --plot\n           Rather than a list marker names, plots a circle. If the LOD-score is\n           provided a dark disk fill the circle proportionality to its value.\n     --var\n           If specified with --bar or --plot the size of the bar/circle is\n           proportional to the number of markers.\n     --square\n           Small squares are used rather than names (incompatible with --plot).\n     --pos\n           The marker positions are indicated on the left site of the chromosome.\n     --compact\n           A more compact/stylish chromosome is used (incompatible with --bar).\n     --karyotype=<karyotype.file>\n           Specify a karytype to scale the physical chromosme. Rather than using\n           genetic distances, expect nucleotide position in than map file.\n           FORMAT: \"chr - ID LABEL START END COMMENT\"\n     --scale= ]0,+oo[\n           Change the scale of the figure (default x10).\n     --verbose\n           Become chatty.\n\n";
 }
