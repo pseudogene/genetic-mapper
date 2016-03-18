@@ -165,19 +165,19 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, '<', $map) && defined
         {
             my $chromosomeid = (looks_like_number($data[1]) ? sprintf("%02.0f", int($data[1] * 10) / 10) : $data[1]);
             my $location = int($data[2] * 1000);
-            if (!exists $chromosomes{$chromosomeid}{$location}) { @{$chromosomes{$chromosomeid}{$location}} = ($data[0], 1, (exists($data[2 + $column]) ? $data[2 + $column] : -1)); }
+            if (!exists $chromosomes{$chromosomeid}{$location}) { @{$chromosomes{$chromosomeid}{$location}} = ($data[0], 1, (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) ? $data[2 + $column] : -1)); }
             else
             {
                 $chromosomes{$chromosomeid}{$location}[0] .= q{,} . $data[0];
                 $chromosomes{$chromosomeid}{$location}[1] += 1;
-                $chromosomes{$chromosomeid}{$location}[2] += (exists($data[2 + $column]) ? $data[2 + $column] : 0);
+                $chromosomes{$chromosomeid}{$location}[2] += (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) ? $data[2 + $column] : 0);
             }
             if (!exists $max{$chromosomeid} || $max{$chromosomeid} < $location / 1000)
             {
                 $max{$chromosomeid} = $location / 1000;
                 $maxmax = $max{$chromosomeid} if (!defined $maxmax || $maxmax < $max{$chromosomeid});
             }
-            $maxlog = $data[3] if (exists($data[2 + $column]) && length($data[2 + $column]) > 0 && (!defined $maxlog || $maxlog < $data[2 + $column]));
+            $maxlog = $data[3] if (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) && length($data[2 + $column]) > 0 && (!defined $maxlog || $maxlog < $data[2 + $column]));
         }
     }
     close $IN;
