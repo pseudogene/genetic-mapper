@@ -5,7 +5,7 @@
 # $Author: Michael Bekaert $
 #
 # SVG Genetic Map Drawer
-# Copyright 2012-2016 Bekaert M <mbekaert@gmail.com>
+# Copyright 2012-2016 Bekaert M <michael.bekaert@stir.ac.uk>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ comments and suggestions preferably to author.
 
 =head1 AUTHOR
 
-B<Michael Bekaert> (mbekaert@gmail.com)
+B<Michael Bekaert> (michael.bekaert@stir.ac.uk)
 
 The latest version of genetic_mapper.pl is available at
 
