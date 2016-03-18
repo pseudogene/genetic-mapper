@@ -1,6 +1,12 @@
 
 #Changes
 
+## v0.6 (March 2016)
+
+* Add --horizontal option
+* Add --col option
+* Fix the chromosome ordering (select automatically numerical or alphabetical)
+
 ## v0.5 (November 2013)
 
 * Fix the numerical chromosome ordering
