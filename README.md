@@ -1,5 +1,7 @@
 Genetic-mapper v0.6 - SVG Genetic Map Drawer
 
+[![Build Status](https://travis-ci.org/pseudogene/genetic-mapper.svg?branch=master)](https://travis-ci.org/pseudogene/genetic-mapper)
+
 #Genetic-mapper
 
 Genetic-mapper is a perl script able to draw publication-ready vectorial genetic maps.
