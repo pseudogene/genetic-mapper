@@ -1,8 +1,5 @@
 Genetic-mapper v0.6 - SVG Genetic Map Drawer
 
-March 2016
-
-
 #Genetic-mapper
 
 Genetic-mapper is a perl script able to draw publication-ready vectorial genetic maps.
@@ -23,11 +20,24 @@ ID,Chr,Pos,LOD
 ...
 ```
 
+##Installation (optional)
+
+You can directly use the script `script/genetic_mapper.pl` or install it in your system using:
+
+```
+git clone https://github.com/pseudogene/genetic-mapper.git
+cd genetic-mapper
+perl Makefile.pl
+make
+make test
+sudo make install
+```
+
 ##Examples
 
 ```
 # stylish
-./genetic_mapper.pl --var --compact --plot --map=map.csv > lg13.svg
+./genetic_mapper.pl --var --compact --plot --map=map.csv > lg.svg
 
 # Classic publication style
 ./genetic_mapper.pl --pos --chr=13 --map=map.csv > lg13.svg

@@ -1,0 +1,7 @@
+MANIFEST
+CHANGES.md
+Makefile.PL
+README.md
+lg13.png
+script/genetic_mapper.pl
+t/test.t
