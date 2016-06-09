@@ -1,23 +1,24 @@
 #!/usr/bin/perl
-# $Revision: 0.6 $
-# $Date: 2016/03/16 $
+# $Revision: 0.7 $
+# $Date: 2016/06/09 $
 # $Id: genetic_mapper.pl $
 # $Author: Michael Bekaert $
 #
-# SVG Genetic Map Drawer
-# Copyright 2012-2016 Bekaert M <michael.bekaert@stir.ac.uk>
+# Vectorial Genetic Map Drawer
+# Copyright (C) 2012-2016 Bekaert M <michael.bekaert@stir.ac.uk>
 #
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License.
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # POD documentation - main docs before the code
 
@@ -28,70 +29,81 @@ Genetic-mapper - SVG Genetic Map Drawer
 =head1 SYNOPSIS
 
   # Command line help
-  ..:: SVG Genetic Map Drawer ::..
-  > Standalone program version 0.6 <
-
-  Usage: genetic_mapper.pl [options] --map=<map.csv>
-
-   Options
-     --chr=<name>
-           Draw only the specified chromosome/linkage group.
-     --bar
-           Use a coloured visualisation with a dark bar at the marker position.
-     --plot
-           Rather than a list marker names, plots a circle. If the LOD-score is
-           provided a dark disk fill the circle proportionality to its value.
-     --col
-           If --plot is specified and if more that one LOD-score column is
-           available specify the column number [default 1 (first LOD-score column)].
-     --var
-           If specified with --bar or --plot the size of the bar/circle is
-           proportional to the number of markers.
-     --square
-           Small squares are used rather than names (incompatible with --plot).
-     --pos
-           The marker positions are indicated on the left site of the chromosome.
-     --compact
-           A more compact/stylish chromosome is used (incompatible with --bar).
-     --karyotype=<karyotype.file>
-           Specify a karytype to scale the physical chromosme. Rather than using
-           genetic distances, expect nucleotide position in than map file.
-           FORMAT: "chr - ID LABEL START END COMMENT"
-     --scale= ]0,+oo[
-           Change the scale of the figure [default x10].
-     --horizontal
-           Rotate the figure by 90 degrees.
-     --verbose
-           Become chatty.
+  ..:: Vectorial Genetic Map Drawer ::..
+  
+  Usage: ./genetic_mapper.pl [options] --map=<map.tsv>
+  
+  Options
+   --map <genetic map file>
+         The input file must be a text file with at least the marker name (ID), linkage
+         group (LG) and the position (POS) separeted by tabulations. Additionally a
+         logarithm of odds (LOD score) can be provided. Any extra parameter will be
+         ignored.
+           ID     LG    POS     LOD
+           M19    12    0.01    0.45068
+           M18    12    1.14    0.00014
+           M40    12    11.48   0.25284
+    --chr <string>
+         Draw only the specified chromosome/linkage group.
+    --delim <character>
+         Use <character> as the field delimiter character instead of the tab character.
+    --bar
+         Use a coloured visualisation with a dark bar at the marker position.
+    --plot
+         Rather than a list of marker names, it plots a circle. If the LOD-score is
+         provided a dark disk fills the circle proportionality to its value.
+    --var
+         If specified with --bar or --plot the size of the bar/circle is proportional to
+         the number of markers.
+    --col
+         If --plot is specified and if more that one LOD-score column is available specify
+         the column number [default 1 (first LOD-score column)].
+    --square
+         Small squares are used rather than names (incompatible with --plot).
+    --pos
+         The marker positions are indicated on the left site of the chromosome.
+    --compact
+         A more compact chromosome is used (incompatible with --bar).
+    --karyotype=<karyotype.file>
+         Specify a karytype to scale the physical chromosme. Rather than using genetic
+         distances, expect nucleotide position in the map file.
+          FORMAT: "chr - ID LABEL START END COMMENT"
+    --scale= ]0,+oo[
+         Change the scale of the figure [default x10].
+    --horizontal
+         Rotate the figure by 90 degrees.
+    --verbose
+         Become chatty.
 
 
   # stylish
-  ./genetic_mapper.pl --var --compact --plot --map=map.csv > lg13.svg
+  ./genetic_mapper.pl --var --compact --plot --map=map.tsv > lg13.svg
 
   # Classic publication style
-  ./genetic_mapper.pl --pos --chr=13 --map=map.csv > lg13.svg
+  ./genetic_mapper.pl --pos --chr=13 --map=map.tsv > lg13.svg
+
 
 =head1 DESCRIPTION
 
-Perl script for creating a publication-ready genetic/linkage map in SVG format. The
-resulting file can either be submitted for publication and edited with any vectorial
-drawing software like Inkscape and Abobe Illustrator.
+Perl script for creating a publication-ready vectorial genetic/linkage map in Scalable
+Vector Graphics (SVG) format. The resulting file can either be submitted for publication
+and edited with any vectorial drawing software like Inkscape and Abobe Illustrator(R).
 
-The input file must be a CSV file with at least the marker name (ID) [string], linkage
-group (Chr) [numeric], and the position (Pos) [numeric]. Additionally LOD score columns or
-p-value can be provided. Any extra parameter will be ignore.
+The input file must be a text file with at least the marker name (ID), linkage group (LG)
+and the position (POS) separeted by tabulations. Additionally a logarithm of odds (LOD
+score) can be provided. Any extra parameter will be ignored.
 
-	ID,Chr,Pos,LOD
-	13519,12,0,0.250840894
-	2718,12,1.0,0.250840893
-	11040,12,1.6,0.252843341
+	ID<tab>LG<tab>POS<tab>LOD
+	13519  12     0       0.250840894
+	2718   12     1.0     0.250840893
+	11040  12     1.6     0.252843341
 	...
 
 
 =head1 FEEDBACK
 
-User feedback is an integral part of the evolution of this modules. Send your
-comments and suggestions preferably to author.
+User feedback is an integral part of the evolution of this modules. Send your comments
+and suggestions preferably to author.
 
 =head1 AUTHOR
 
@@ -105,17 +117,18 @@ The latest version of genetic_mapper.pl is available at
 
 Copyright 2012-2016 - Michael Bekaert
 
-This program is free software; you can redistribute it and/or modify
+This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License.
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
 
@@ -125,12 +138,13 @@ use Scalar::Util qw(looks_like_number);
 use Getopt::Long;
 
 #----------------------------------------------------------
-our ($VERSION) = 0.6;
+our ($VERSION) = 0.7;
 
 #----------------------------------------------------------
-my ($verbose, $shify, $horizontal, $bar, $square, $var, $pflag, $scale, $compact, $column, $plot, $font, $karyotype, $map, $chr) = (0, 30, 0, 0, 0, 0, 0, 10, 0, 1, 0);
+my ($verbose, $shify, $delim, $horizontal, $bar, $square, $var, $pflag, $scale, $compact, $column, $plot, $font, $karyotype, $map, $chr) = (0, 30, '\t', 0, 0, 0, 0, 0, 10, 0, 1, 0);
 GetOptions(
            'm|map=s'         => \$map,
+           'delim:s'         => \$delim,
            'k|karyotype:s'   => \$karyotype,
            'scale:f'         => \$scale,
            'horizontal!'     => \$horizontal,
@@ -146,12 +160,7 @@ GetOptions(
           );
 my $yshift = ($pflag ? 150 : 0);
 my @font = ('Helvetica', 4, 13, 10);
-
-#my @font=('InaiMathi',4,13,11);
-#my @font=('Optima',4,13,10);
-#my @font=('Lucida Console',4,13,10);
-#my @font=('Myriad Pro',4,13,10);
-if ($scale > 0 && defined $map && -r $map && (open my $IN, '<', $map) && defined $column && $column > 0)
+if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && defined $column && $column > 0)
 {
     my (@clips,       @final);
     my (%chromosomes, %max);
@@ -159,8 +168,9 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, '<', $map) && defined
     <$IN>;
     while (<$IN>)
     {
+        next if (m/^#/);
         chomp;
-        my @data = split m/,/;
+        my @data = split m/$delim/;
         if (scalar @data > 2 && defined $data[1] && (!defined $chr || $data[1] eq $chr))
         {
             my $chromosomeid = (looks_like_number($data[1]) ? sprintf("%02.0f", int($data[1] * 10) / 10) : $data[1]);
@@ -181,7 +191,7 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, '<', $map) && defined
         }
     }
     close $IN;
-    if (defined $karyotype && -r $karyotype && (open my $KIN, '<', $karyotype))
+    if (defined $karyotype && -r $karyotype && (open my $KIN, q{<}, $karyotype))
     {
         while (<$KIN>)
         {
@@ -328,5 +338,6 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, '<', $map) && defined
 else
 {
     print {*STDERR}
-      "\n  ..:: SVG Genetic Map Drawer ::..\n  > Standalone program version $VERSION <\n\n  Usage: $0 [options] --map=<map.csv>\n\n   Options\n     --chr <string>\n           Draw only the specified chromosome/linkage group.\n     --bar\n           Use a coloured visualisation with a bark bar at the marker position.\n     --plot\n           Rather than a list marker names, plots a circle. If the LOD-score is\n           provided a dark disk fill the circle proportionality to its value.\n     --var\n           If specified with --bar or --plot the size of the bar/circle is\n           proportional to the number of markers.\n     --col\n           If --plot is specified and if more that one LOD-score column is\n           available specify the column number [default 1 (first LOD-score column)].\n     --square\n           Small squares are used rather than names (incompatible with --plot).\n     --pos\n           The marker positions are indicated on the left site of the chromosome.\n     --compact\n           A more compact/stylish chromosome is used (incompatible with --bar).\n     --karyotype=<karyotype.file>\n           Specify a karytype to scale the physical chromosme. Rather than using\n           genetic distances, expect nucleotide position in than map file.\n           FORMAT: \"chr - ID LABEL START END COMMENT\"\n     --scale= ]0,+oo[\n           Change the scale of the figure [default x10].\n     --horizontal\n           Rotate the figure by 90 degrees.\n     --verbose\n           Become chatty.\n\n";
+      "\n..:: Vectorial Genetic Map Drawer ::..\n\nUsage: ./genetic_mapper.pl [options] --map=<map.tsv>\n\nOptions\n --map <genetic map file>\n       The input file must be a text file with at least the marker name (ID), linkage\n       group (LG) and the position (POS) separeted by tabulations. Additionally a\n       logarithm of odds (LOD score) can be provided. Any extra parameter will be ignored.\n         ID     LG    POS     LOD\n         M19    12    0.01    0.45068\n         M18    12    1.14    0.00014\n         M40    12    11.48   0.25284\n  --chr <string>\n       Draw only the specified chromosome/linkage group.\n  --delim <character>\n       Use <character> as the field delimiter character instead of the tab character.\n  --bar\n       Use a coloured visualisation with a dark bar at the marker position.\n  --plot\n       Rather than a list of marker names, it plots a circle. If the LOD-score is provided\n       a dark disk fills the circle proportionality to its value.\n  --var\n       If specified with --bar or --plot the size of the bar/circle is proportional to the\n       number of markers.\n  --col\n       If --plot is specified and if more that one LOD-score column is available specify\n       the column number [default 1 (first LOD-score column)].\n  --square\n       Small squares are used rather than names (incompatible with --plot).\n  --pos\n       The marker positions are indicated on the left site of the chromosome.\n  --compact\n       A more compact chromosome is used (incompatible with --bar).\n  --karyotype=<karyotype.file>\n       Specify a karytype to scale the physical chromosme. Rather than using genetic\n       distances, expect nucleotide position in the map file.\n        FORMAT: \"chr - ID LABEL START END COMMENT\"\n  --scale= ]0,+oo[\n       Change the scale of the figure [default x",
+      $scale, "].\n  --horizontal\n       Rotate the figure by 90 degrees.\n  --verbose\n       Become chatty.\n\n";
 }

@@ -2,37 +2,40 @@
 use strict;
 use warnings;
 use Test::More tests => 1;
-
 my ($input, $output) = (q{}, q{});
-if(open my $out, q{>}, 'test.csv') {
-    while (<DATA>) {
+if (open my $out, q{>}, 'test.tsv')
+{
+    while (<DATA>)
+    {
         last if (m/^#/);
         print {$out} $_;
     }
     close $out;
-    system './script/genetic_mapper.pl --pos --map=test.csv > test.svg';
-    unlink 'test.csv';
-    if(open my $in, q{<}, 'test.svg') {
-        while (<$in>) {
+    system './script/genetic_mapper.pl --pos --map=test.tsv > test.svg';
+    unlink 'test.tsv';
+    if (open my $in, q{<}, 'test.svg')
+    {
+        while (<$in>)
+        {
             chomp;
             $input .= $_;
         }
         close $in;
     }
     unlink 'test.svg';
-    while (<DATA>) {
+    while (<DATA>)
+    {
         chomp;
         $output .= $_;
     }
 }
 ok($input eq $output, 'tutorial map');
 done_testing();
-
 __DATA__
-ID,Chr,Pos,LOD
-13519,12,0,0.250840894
-2718,12,1.0,0.250840893
-11040,12,1.6,0.252843341
+ID	LD	Pos	LOD
+13519	12	0	0.250840894
+2718	12	1.0	0.250840893
+11040	12	1.6	0.252843341
 #
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">

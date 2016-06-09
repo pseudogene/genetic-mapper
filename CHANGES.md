@@ -1,6 +1,12 @@
 
 #Changes
 
+## v0.7 (June 2016)
+
+* Add --delim option
+* Change the preferred input format from CSV to TSV
+* Fix typo and overall help and description
+
 ## v0.6 (March 2016)
 
 * Add --horizontal option
