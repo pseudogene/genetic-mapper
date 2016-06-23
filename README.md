@@ -22,6 +22,14 @@ ID<tab>LG<tab>POS<tab>LOD
 ...
 ```
 
+## How to cite Genetic-mapper
+
+>**Genetic-Mapper: vectorial genetic map drawer**.
+>Bekaert M.
+>_F1000Research_. 2016, 5:1301 (poster).
+
+[![DOI](https://img.shields.io/badge/DOI-10.7490%2Ff1000research.1112266.1-blue.svg)](http://dx.doi.org/10.7490/f1000research.1112266.1)
+
 ## Installation (optional)
 
 You can directly use the script `script/genetic_mapper.pl` or install it in your system using:

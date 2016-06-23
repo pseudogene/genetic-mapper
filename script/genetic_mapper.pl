@@ -105,6 +105,13 @@ score) can be provided. Any extra parameter will be ignored.
 User feedback is an integral part of the evolution of this modules. Send your comments
 and suggestions preferably to author.
 
+=head1 How to cite Genetic-mapper
+
+  B<Genetic-Mapper: vectorial genetic map drawer>.
+  Bekaert M.
+  F1000Research. 2016, 5:1301 (poster).
+  doi: 10.7490/f1000research.1112266.1
+
 =head1 AUTHOR
 
 B<Michael Bekaert> (michael.bekaert@stir.ac.uk)
