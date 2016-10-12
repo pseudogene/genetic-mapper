@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# $Revision: 0.7 $
-# $Date: 2016/06/09 $
+# $Revision: 0.8 $
+# $Date: 2016/10/12 $
 # $Id: genetic_mapper.pl $
 # $Author: Michael Bekaert $
 #
@@ -145,10 +145,11 @@ use Scalar::Util qw(looks_like_number);
 use Getopt::Long;
 
 #----------------------------------------------------------
-our ($VERSION) = 0.7;
+our ($VERSION) = 0.8;
 
 #----------------------------------------------------------
-my ($verbose, $shify, $delim, $horizontal, $bar, $square, $var, $pflag, $scale, $compact, $column, $plot, $font, $karyotype, $map, $chr) = (0, 30, '\t', 0, 0, 0, 0, 0, 10, 0, 1, 0);
+
+my ($verbose, $shify, $delim, $pvalue, $horizontal, $bar, $square, $var, $pflag, $scale, $compact, $column, $plot, $font, $karyotype, $map, $chr) = (0, 30, '\t', 0, 0, 0, 0, 0, 0, 10, 0, 1, 0);
 GetOptions(
            'm|map=s'         => \$map,
            'delim:s'         => \$delim,
@@ -161,6 +162,7 @@ GetOptions(
            'p|pos|position!' => \$pflag,
            'compact!'        => \$compact,
            'plot!'           => \$plot,
+           'pvalue!'         => \$pvalue,
            'col:i'           => \$column,
            'c|chr:s'         => \$chr,
            'v|verbose!'      => \$verbose
@@ -180,6 +182,7 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && define
         my @data = split m/$delim/;
         if (scalar @data > 2 && defined $data[1] && (!defined $chr || $data[1] eq $chr))
         {
+            $data[2 + $column] = -log($data[2 + $column])/log(10) if ($pvalue && looks_like_number($data[2 + $column]));
             my $chromosomeid = (looks_like_number($data[1]) ? sprintf("%02.0f", int($data[1] * 10) / 10) : $data[1]);
             my $location = int($data[2] * 1000);
             if (!exists $chromosomes{$chromosomeid}{$location}) { @{$chromosomes{$chromosomeid}{$location}} = ($data[0], 1, (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) ? $data[2 + $column] : -1)); }
@@ -194,7 +197,7 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && define
                 $max{$chromosomeid} = $location / 1000;
                 $maxmax = $max{$chromosomeid} if (!defined $maxmax || $maxmax < $max{$chromosomeid});
             }
-            $maxlog = $data[3] if (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) && length($data[2 + $column]) > 0 && (!defined $maxlog || $maxlog < $data[2 + $column]));
+            $maxlog = $data[2 + $column] if (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) && length($data[2 + $column]) > 0 && (!defined $maxlog || $maxlog < $data[2 + $column]));
         }
     }
     close $IN;

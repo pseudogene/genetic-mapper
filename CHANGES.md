@@ -1,5 +1,10 @@
 
-#Changes
+# Changes
+
+## v0.8 (October 2016)
+
+* Add --pvalue option (convert P-values to LOD) (beta)
+* Fix the --col option, now it selects the correct column.
 
 ## v0.7 (June 2016)
 
