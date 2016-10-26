@@ -210,7 +210,7 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && define
             if (scalar @data > 5 && defined $data[0] && $data[0] eq 'chr' && defined $data[2] && defined $data[5] && exists $max{(looks_like_number($data[2]) ? sprintf("%02.0f", int($data[2] * 10) / 10) : $data[2])})
             {
                 $max{(looks_like_number($data[2]) ? sprintf("%02.0f", int($data[2] * 10) / 10) : $data[2])} = $data[5];
-                $maxmax = $max{(looks_like_number($data[2]) ? int($data[2] * 10) / 10 : $data[2])} if (!defined $maxmax || $maxmax < $max{(looks_like_number($data[2]) ? sprintf("%02.0f", int($data[2] * 10) / 10) : $data[2])});
+                $maxmax = $data[5] if (!defined $maxmax || $maxmax < $data[5]);
             }
         }
         close $KIN;
