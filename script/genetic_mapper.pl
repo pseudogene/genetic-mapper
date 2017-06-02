@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Revision: 0.8 $
-# $Date: 2016/10/12 $
+# $Revision: 0.9 $
+# $Date: 2017/06/02 $
 # $Id: genetic_mapper.pl $
 # $Author: Michael Bekaert $
 #
 # Vectorial Genetic Map Drawer
-# Copyright (C) 2012-2016 Bekaert M <michael.bekaert@stir.ac.uk>
+# Copyright (C) 2012-2017 Bekaert M <michael.bekaert@stir.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ The latest version of genetic_mapper.pl is available at
 
 =head1 LICENSE
 
-Copyright 2012-2016 - Michael Bekaert
+Copyright 2012-2017 - Michael Bekaert
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -145,7 +145,7 @@ use Scalar::Util qw(looks_like_number);
 use Getopt::Long;
 
 #----------------------------------------------------------
-our ($VERSION) = 0.8;
+our ($VERSION) = 0.9;
 
 #----------------------------------------------------------
 
@@ -263,7 +263,7 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && define
                       . ($yshift + ($var ? 125 : 115))
                       . '" cy="'
                       . ($shify + ($locus2 * $scale) + $shpos) . '" r="'
-                      . (length($chromosomes{$chrnum}{$locus}[2]) > 0 ? ($chromosomes{$chrnum}{$locus}[2] > 0 ? ((($chromosomes{$chrnum}{$locus}[2] / $chromosomes{$chrnum}{$locus}[1]) * $size) / $maxlog) : $size) : 0)
+                      . (length($chromosomes{$chrnum}{$locus}[2]) > 0 && $chromosomes{$chrnum}{$locus}[2] >= 0 ? ((($chromosomes{$chrnum}{$locus}[2] / $chromosomes{$chrnum}{$locus}[1]) * $size) / $maxlog) : 0)
                       . "\"/>\n  </g>";
                 }
                 elsif ($square)
