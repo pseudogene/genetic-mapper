@@ -86,6 +86,9 @@ Options
         FORMAT: "chr - ID LABEL START END COMMENT"
   --scale= ]0,+oo[
        Change the scale of the figure [default x10].
+  --split
+       If multiple markers have the same position, split the markers on multiple links
+       rather than on a long list on name.
   --horizontal
        Rotate the figure by 90 degrees.
   --verbose

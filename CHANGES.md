@@ -1,6 +1,14 @@
 
 # Changes
 
+## v0.10 (June 2018)
+
+* Add --split option (split the markers on multiple links rather than on a long list
+
+## v0.9 (June 2017)
+
+* Fix disk diameter.
+
 ## v0.8 (October 2016)
 
 * Add --pvalue option (convert P-values to LOD) (beta)

@@ -11,7 +11,7 @@ if (open my $out, q{>}, 'test.tsv')
         print {$out} $_;
     }
     close $out;
-    system './script/genetic_mapper.pl --pos --map=test.tsv > test.svg';
+    system './script/genetic_mapper.pl --pos --split --map=test.tsv > test.svg';
     unlink 'test.tsv';
     if (open my $in, q{<}, 'test.svg')
     {
@@ -35,6 +35,7 @@ __DATA__
 ID	LD	Pos	LOD
 13519	12	0	0.250840894
 2718	12	1.0	0.250840893
+8888	12	1.0	0.357741452
 11040	12	1.6	0.252843341
 #
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -57,8 +58,10 @@ ID	LD	Pos	LOD
   <path class="line" d="M94,43h12,l39,-3l0,0h54l39,3l0,0h12"/>
   <text class="text" text-anchor="end" x="86" y="47">1</text>
   <text class="text" x="255" y="47">2718</text>
-  <path class="line" d="M94,56h12,l39,-10l0,0h54l39,10l0,0h12"/>
-  <text class="text" text-anchor="end" x="86" y="60">1.6</text>
-  <text class="text" x="255" y="60">11040</text>
+  <path class="line" d="M172,40h27l39,16l0,0h12"/>
+  <text class="text" x="255" y="60">8888</text>
+  <path class="line" d="M94,69h12,l39,-23l0,0h54l39,23l0,0h12"/>
+  <text class="text" text-anchor="end" x="86" y="73">1.6</text>
+  <text class="text" x="255" y="73">11040</text>
  </g>
 </svg>
