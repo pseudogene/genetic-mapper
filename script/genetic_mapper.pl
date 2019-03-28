@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Revision: 0.10 $
-# $Date: 2018/06/29 $
+# $Revision: 0.11 $
+# $Date: 2019/03/28 $
 # $Id: genetic_mapper.pl $
 # $Author: Michael Bekaert $
 #
 # Vectorial Genetic Map Drawer
-# Copyright (C) 2012-2018 Bekaert M <michael.bekaert@stir.ac.uk>
+# Copyright (C) 2012-2019 Bekaert M <michael.bekaert@stir.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,9 +30,9 @@ Genetic-mapper - SVG Genetic Map Drawer
 
   # Command line help
   ..:: Vectorial Genetic Map Drawer ::..
-  
+
   Usage: ./genetic_mapper.pl [options] --map=<map.tsv>
-  
+
   Options
    --map <genetic map file>
          The input file must be a text file with at least the marker name (ID), linkage
@@ -52,6 +52,9 @@ Genetic-mapper - SVG Genetic Map Drawer
     --plot
          Rather than a list of marker names, it plots a circle. If the LOD-score is
          provided a dark disk fills the circle proportionality to its value.
+    --species
+         Rather than a list of marker names, it plots a coloured circle. The option --col
+         must be used to specify the species name (incompatible with --plot or --bar).
     --var
          If specified with --bar or --plot the size of the bar/circle is proportional to
          the number of markers.
@@ -124,7 +127,7 @@ The latest version of genetic_mapper.pl is available at
 
 =head1 LICENSE
 
-Copyright 2012-2018 - Michael Bekaert
+Copyright 2012-2019 - Michael Bekaert
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -144,15 +147,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 use strict;
 use warnings;
 use Scalar::Util qw(looks_like_number);
+use List::MoreUtils qw/ uniq /;
 use Getopt::Long;
 
 #----------------------------------------------------------
-our ($VERSION) = 0.10;
+our ($VERSION) = 0.11;
 
 #----------------------------------------------------------
+sub _commify
+{
+    my $text = reverse $_[0];
+    $text =~ s/(\d\d\d)(?=\d)(?!\d*\.)/$1,/g;
+    return scalar reverse $text;
+}
 
 my $dilution = 100000;
-my ($verbose, $shify, $delim, $split, $pvalue, $horizontal, $bar, $square, $var, $pflag, $scale, $compact, $column, $plot, $font, $karyotype, $map, $chr) = (0, 30, '\t', 0, 0, 0, 0, 0, 0, 0, 10, 0, 1, 0);
+my ($verbose, $shify, $delim, $spp, $split, $pvalue, $horizontal, $bar, $square, $var, $pflag, $scale, $compact, $column, $plot, $font, $karyotype, $map, $chr) = (0, 30, '\t', 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 1, 0);
 GetOptions(
            'm|map=s'         => \$map,
            'delim:s'         => \$delim,
@@ -168,16 +178,18 @@ GetOptions(
            'pvalue!'         => \$pvalue,
            'split!'          => \$split,
            'col:i'           => \$column,
+           'species!'        => \$spp,
            'c|chr:s'         => \$chr,
            'v|verbose!'      => \$verbose
           );
 my $yshift = ($pflag ? 150 : 0);
 my @font = ('Helvetica', 4, 13, 10);
+my @colour = ('#073642','#dc322f','#859900','#b58900','#268bd2','#d33682','#2aa198','#eee8d5','#002b36','#cb4b16','#586e75','#657b83','#839496','#6c71c4','#93a1a1','#fdf6e3');
 if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && defined $column && $column > 0)
 {
-    my (@clips,       @final);
-    my (%chromosomes, %max);
-    my ($maxmax,      $maxlog);
+    my (@clips, @final);
+    my (%chromosomes, %max, %species);
+    my ($maxmax, $maxlog);
     <$IN>;
     while (<$IN>)
     {
@@ -186,20 +198,21 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && define
         my @data = split m/$delim/;
         if (scalar @data > 2 && defined $data[1] && (!defined $chr || $data[1] eq $chr))
         {
+            if ($spp && !exists $species{$data[2 + $column]}) { $species{$data[2 + $column]} = scalar keys %species; }
             $data[2 + $column] = -log($data[2 + $column])/log(10) if ($pvalue && looks_like_number($data[2 + $column]));
             my $chromosomeid = (looks_like_number($data[1]) ? sprintf("%02.0f", int($data[1] * 10) / 10) : $data[1]);
             my $location = int($data[2] * $dilution);
-            if (!exists $chromosomes{$chromosomeid}{$location}) { @{$chromosomes{$chromosomeid}{$location}} = ($data[0], 1, (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) ? $data[2 + $column] : -1)); }
+            if (!exists $chromosomes{$chromosomeid}{$location}) { @{$chromosomes{$chromosomeid}{$location}} = ($data[0], 1, (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) ? $data[2 + $column] : ($spp ? $data[2 + $column] : -1))); }
             else
             {
             	if ($split) {
             		my $i=1;
             		while( exists $chromosomes{$chromosomeid}{$location + $i}) { $i++; }
-            		@{$chromosomes{$chromosomeid}{$location + $i}} = ($data[0], 1, (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) ? $data[2 + $column] : -1));
+            		@{$chromosomes{$chromosomeid}{$location + $i}} = ($data[0], 1, (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) ? $data[2 + $column] : ($spp ? $data[2 + $column] : -1)));
             	} else {
                     $chromosomes{$chromosomeid}{$location}[0] .= q{,} . $data[0];
                     $chromosomes{$chromosomeid}{$location}[1] += 1;
-                    $chromosomes{$chromosomeid}{$location}[2] += (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) ? $data[2 + $column] : 0);
+                    $chromosomes{$chromosomeid}{$location}[2] = (exists($data[2 + $column]) && looks_like_number($data[2 + $column]) ? $chromosomes{$chromosomeid}{$location}[2] + $data[2 + $column] : ($spp ? $chromosomes{$chromosomeid}{$location}[0] . q{,} . $data[2 + $column] : $chromosomes{$chromosomeid}{$location}[2]));
                 }
             }
             if (!exists $max{$chromosomeid} || $max{$chromosomeid} < $location / $dilution)
@@ -261,8 +274,25 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && define
                     if ($pflag && !$index) { push @legend, '  <path class="line" d="M' . ($yshift - 5 - 12 - 39) . q{,} . ($shify + ($locus2 * $scale) + ($shpos)) . 'h12,l39,-' . ($shpos) . 'l0,0' . 'h54l39,' . ($shpos) . 'l0,0h12"/>'; }
                     else        { push @legend, '  <path class="line" d="M' . ($yshift + 22) . q{,} . ($shify + ($locus2 * $scale)) . 'h27l39,' . ($shpos) . 'l0,0h12"/>'; }
                 }
-                if ($pflag && !$index) { push @legend, '  <text class="text" text-anchor="end" x="' . ($yshift - 105 + 41) . '" y="' . ($shify + ($locus2 * $scale) + $shpos + $font[1]) . '">' . $locus2 . '</text>'; }
-                if ($plot)
+                if ($pflag && !$index) { push @legend, '  <text class="text" text-anchor="end" x="' . ($yshift - 105 + 41) . '" y="' . ($shify + ($locus2 * $scale) + $shpos + $font[1]) . '">' . _commify($locus2) . '</text>'; }
+                if ($spp)
+                {
+                   push @legend, '  <g opacity="0.7">';
+                   $i = 0;
+                   foreach my $sp (uniq(sort(split m/,/, $chromosomes{$chrnum}{$locus}[2])))
+                   {
+                       push @legend, '   <circle fill="' . $colour[$species{$sp}] . '" cx="' . ($yshift + 115 + $i * ($size + 1) * 2) . '" cy="' . ($shify + ($locus2 * $scale) + $shpos) . '" r="' . $size . '"/>';
+                       $i++;
+                   }
+                   push @legend, '  </g>';
+                   push @legend,
+                        '  <text class="text" x="'
+                      . (($yshift + 115 + $i * ($size + 1) * 2)) . '" y="'
+                      . ($shify + ($locus2 * $scale) + $shpos + $font[1]) . '">'
+                      . $chromosomes{$chrnum}{$locus}[2]
+                      . '</text>';
+                }
+                elsif ($plot)
                 {
                     push @legend,
                         "  <g opacity=\"0.7\">\n   <circle fill=\"none\" stroke=\"#000000\" stroke-width=\"0.25\" cx=\""
@@ -302,7 +332,6 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && define
             if ($bar) { push @final, '   <g id="locii_' . $chrnum . '" clip-path="url(#clip_' . $chrnum . ")\">\n  <rect x=\"" . $yshift . '" y="0" width="40" height="' . ((2 * $shify) + ($max{$chrnum} * $scale)) . '" fill="url(#bgrad)"/>'; }
             else
             {
-
                 if ($compact)
                 {
                     push @final,
@@ -354,11 +383,16 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && define
         print {*STDOUT} join("\n", @final), "\n";
         print {*STDOUT} " </g>\n" if ($horizontal);
         print {*STDOUT} "</svg>\n";
+        if ($spp && $verbose)
+        {
+            print {*STDERR} "\n\nspecies\tcolour\n";
+            foreach my $item (keys %species) { print {*STDERR} $item, "\t", $colour[$species{$item}], "\n"; }
+        }
     }
 }
 else
 {
     print {*STDERR}
-      "\n..:: Vectorial Genetic Map Drawer ::..\n\nUsage: ./genetic_mapper.pl [options] --map=<map.tsv>\n\nOptions\n --map <genetic map file>\n       The input file must be a text file with at least the marker name (ID), linkage\n       group (LG) and the position (POS) separeted by tabulations. Additionally a\n       logarithm of odds (LOD score) can be provided. Any extra parameter will be ignored.\n         ID     LG    POS     LOD\n         M19    12    0.01    0.45068\n         M18    12    1.14    0.00014\n         M40    12    11.48   0.25284\n  --chr <string>\n       Draw only the specified chromosome/linkage group.\n  --delim <character>\n       Use <character> as the field delimiter character instead of the tab character.\n  --bar\n       Use a coloured visualisation with a dark bar at the marker position.\n  --plot\n       Rather than a list of marker names, it plots a circle. If the LOD-score is provided\n       a dark disk fills the circle proportionality to its value.\n  --var\n       If specified with --bar or --plot the size of the bar/circle is proportional to the\n       number of markers.\n  --col\n       If --plot is specified and if more that one LOD-score column is available specify\n       the column number [default 1 (first LOD-score column)].\n  --square\n       Small squares are used rather than names (incompatible with --plot).\n  --pos\n       The marker positions are indicated on the left site of the chromosome.\n  --compact\n       A more compact chromosome is used (incompatible with --bar).\n  --karyotype=<karyotype.file>\n       Specify a karytype to scale the physical chromosme. Rather than using genetic\n       distances, expect nucleotide position in the map file.\n        FORMAT: \"chr - ID LABEL START END COMMENT\"\n  --scale= ]0,+oo[\n       Change the scale of the figure [default x",
+      "\n..:: Vectorial Genetic Map Drawer ::..\n\nUsage: ./genetic_mapper.pl [options] --map=<map.tsv>\n\nOptions\n --map <genetic map file>\n       The input file must be a text file with at least the marker name (ID), linkage\n       group (LG) and the position (POS) separeted by tabulations. Additionally a\n       logarithm of odds (LOD score) can be provided. Any extra parameter will be ignored.\n         ID     LG    POS     LOD\n         M19    12    0.01    0.45068\n         M18    12    1.14    0.00014\n         M40    12    11.48   0.25284\n  --chr <string>\n       Draw only the specified chromosome/linkage group.\n  --delim <character>\n       Use <character> as the field delimiter character instead of the tab character.\n  --bar\n       Use a coloured visualisation with a dark bar at the marker position.\n  --species\n       Rather than a list of marker names, it plots a coloured circle. The option --col\n       must be used to specify the species name (incompatible with --plot or --bar).\n  --plot\n       Rather than a list of marker names, it plots a circle. If the LOD-score is provided\n       a dark disk fills the circle proportionality to its value.\n  --var\n       If specified with --bar or --plot the size of the bar/circle is proportional to the\n       number of markers.\n  --col\n       If --plot is specified and if more that one LOD-score column is available specify\n       the column number [default 1 (first LOD-score column)].\n  --square\n       Small squares are used rather than names (incompatible with --plot).\n  --pos\n       The marker positions are indicated on the left site of the chromosome.\n  --compact\n       A more compact chromosome is used (incompatible with --bar).\n  --karyotype=<karyotype.file>\n       Specify a karytype to scale the physical chromosme. Rather than using genetic\n       distances, expect nucleotide position in the map file.\n        FORMAT: \"chr - ID LABEL START END COMMENT\"\n  --scale= ]0,+oo[\n       Change the scale of the figure [default x",
       $scale, "].\n  --split\n       If multiple markers have the same position, split the markers on multiple links\n       rather than on a long list on name.\n  --horizontal\n       Rotate the figure by 90 degrees.\n  --verbose\n       Become chatty.\n\n";
 }

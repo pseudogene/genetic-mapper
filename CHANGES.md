@@ -1,9 +1,13 @@
 
 # Changes
 
+## v0.11 (March 2019)
+
+* Add --species option (Allow to plot diagnostic markers and colour)
+
 ## v0.10 (June 2018)
 
-* Add --split option (split the markers on multiple links rather than on a long list
+* Add --split option (split the markers on multiple links rather than on a long list)
 
 ## v0.9 (June 2017)
 

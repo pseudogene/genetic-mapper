@@ -68,6 +68,9 @@ Options
   --plot
        Rather than a list of marker names, it plots a circle. If the LOD-score is provided
        a dark disk fills the circle proportionality to its value.
+  --species
+       Rather than a list of marker names, it plots a coloured circle. The option --col
+       must be used to specify the species name (incompatible with --plot or --bar).
   --var
        If specified with --bar or --plot the size of the bar/circle is proportional to the
        number of markers.
