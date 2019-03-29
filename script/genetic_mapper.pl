@@ -147,7 +147,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 use strict;
 use warnings;
 use Scalar::Util qw(looks_like_number);
-use List::MoreUtils qw/ uniq /;
 use Getopt::Long;
 
 #----------------------------------------------------------
@@ -279,7 +278,8 @@ if ($scale > 0 && defined $map && -r $map && (open my $IN, q{<}, $map) && define
                 {
                    push @legend, '  <g opacity="0.7">';
                    $i = 0;
-                   foreach my $sp (uniq(sort(split m/,/, $chromosomes{$chrnum}{$locus}[2])))
+                   my %hashTemp = map { $_ => 1 } split m/,/, $chromosomes{$chrnum}{$locus}[2];
+                   foreach my $sp (sort keys %hashTemp)
                    {
                        push @legend, '   <circle fill="' . $colour[$species{$sp}] . '" cx="' . ($yshift + 115 + $i * ($size + 1) * 2) . '" cy="' . ($shify + ($locus2 * $scale) + $shpos) . '" r="' . $size . '"/>';
                        $i++;
