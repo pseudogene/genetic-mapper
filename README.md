@@ -1,6 +1,6 @@
 Genetic-mapper - Vectorial Genetic Map Drawer
 
-[![Build Status](https://travis-ci.org/pseudogene/genetic-mapper.svg?branch=master)](https://travis-ci.org/pseudogene/genetic-mapper)
+[![Build Status](https://travis-ci.org/pseudogene/genetic-mapper.svg?branch=master)](https://travis-ci.org/pseudogene/genetic-mapper) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9ca9d97b26f94b27911cbf6e6e95f55a)](https://www.codacy.com/manual/pseudogene/genetic-mapper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pseudogene/genetic-mapper&amp;utm_campaign=Badge_Grade)
 
 # Genetic-mapper
 
@@ -12,7 +12,7 @@ Perl script for creating a publication-ready vectorial genetic/linkage map in Sc
 
 The input file must be a text file with at least the marker name (ID), linkage group (LG) and the position (POS) separeted by tabulations. Additionally a logarithm of odds (LOD score) can be provided. Any extra parameter will be ignored.
 
-```
+```plaintext
 map.tsv
 
 ID<tab>LG<tab>POS<tab>LOD
@@ -34,7 +34,7 @@ ID<tab>LG<tab>POS<tab>LOD
 
 You can directly use the script `script/genetic_mapper.pl` or install it in your system using:
 
-```
+```sh
 git clone https://github.com/pseudogene/genetic-mapper.git
 cd genetic-mapper
 perl Makefile.pl
@@ -45,7 +45,7 @@ sudo make install
 
 ## Usage
 
-```
+```plaintext
 ..:: Vectorial Genetic Map Drawer ::..
 
 Usage: ./genetic_mapper.pl [options] --map=<map.tsv>
@@ -100,7 +100,7 @@ Options
 
 ## Examples
 
-```
+```sh
 # compact (stylish)
 ./genetic_mapper.pl --var --compact --plot --map=map.tsv > lg.svg
 
